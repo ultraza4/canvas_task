@@ -1,6 +1,7 @@
 <template>
   <div class="canvas">
-    <Block />
+    <Block :startX="0" :startY="50"/>
+    <Block :startX="300" :startY="300"/>
   </div>
 </template>
 

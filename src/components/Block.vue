@@ -1,34 +1,69 @@
 <template>
-    <div class="block">
+    <div 
+        class="block"
+        :class="{dragging: isDragging}"
+        ref="draggableBlock"
+        :style="{'top': x, 'left': y}" 
+        @mousedown="dragMouseDown">
         <div class="block-item type">Text Message</div>
         <div class="block-item text">Hi</div>
         <div class="block-item step">next step</div>
+        <div class="circle-start"></div>
+        <div class="circle-connect"></div>
     </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-@Options({
+<script>
+
+export default {
     data() {
         return {
-            isDragging: false as boolean,
-
+            isDragging: false ,
+            x: null,
+            y: null,
+            positions: {
+                clientX: undefined,
+                clientY: undefined,
+                movementX: 0,
+                movementY: 0
+            }
         }
     },
-    components: {
-
+    props: {
+        startX: Number,
+        startY: Number
     },
     methods: {
-        handleDragStart() {
+        dragMouseDown: function (event) {
+            event.preventDefault()
+            // get the mouse cursor position at startup:
+            this.positions.clientX = event.clientX
+            this.positions.clientY = event.clientY
+            document.onmousemove = this.elementDrag
+            document.onmouseup = this.closeDragElement
             this.isDragging = true
         },
-        handleDragEnd() {
-            
+        elementDrag: function (event) {
+            event.preventDefault()
+            this.positions.movementX = this.positions.clientX - event.clientX
+            this.positions.movementY = this.positions.clientY - event.clientY
+            this.positions.clientX = event.clientX
+            this.positions.clientY = event.clientY
+            // set the element's new position:
+            this.x = (this.$refs.draggableBlock.offsetTop - this.positions.movementY) + 'px'
+            this.y = (this.$refs.draggableBlock.offsetLeft - this.positions.movementX) + 'px'
+        },
+        closeDragElement() {
+            document.onmouseup = null
+            document.onmousemove = null
+            this.isDragging = false
         }
+    },
+    mounted() {
+        this.x = this.startX + 'px';
+        this.y = this.startY + 'px';
     }
-})
-export default class Block extends Vue { }
-
+}
 </script>
 
 <style lang="scss" scoped>
@@ -37,8 +72,16 @@ export default class Block extends Vue { }
     height: 200px;
     display: grid;
     grid-template-rows: 1fr 1fr 1fr;
+    position: absolute;
     border: 2px solid grey;
-
+    cursor: grab;
+    overflow: hidden;
+    &.dragging{
+        cursor: grabbing;
+        border: 2px solid rgb(87, 87, 238);
+        z-index: 100;
+        overflow: hidden;
+    }
     .block-item {
         display: flex;
         justify-content: center;
