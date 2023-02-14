@@ -5,13 +5,19 @@
   </div>
   <div class="canvas" :style="{ transform: 'scale(' + this.scaleNum + ')', top: this.x, left: this.y }"
     ref="draggableCanvas">
-    <Block :startX="0" :startY="50" :scale=this.scaleNum />
-    <Block :startX="300" :startY="300" :scale=this.scaleNum />
+    <Block 
+      v-for="block in blocks" 
+      :key="block.id"
+      :id="block.id" 
+      :newLeft="block.position.left" 
+      :newTop="block.position.top"
+      :scale="scaleNum"/>
   </div>
 </template>
 
 <script >
 import Block from '@/components/Block.vue';
+import { mapState } from 'vuex';
 
 export default {
   data() {
@@ -60,6 +66,11 @@ export default {
       document.onmouseup = null
       document.onmousemove = null
     },
+  },
+  computed: {
+    ...mapState({
+      blocks: state => state.drag.blocks
+    })
   },
   mounted() {
     document.addEventListener("mousedown", this.dragMouseDown)
