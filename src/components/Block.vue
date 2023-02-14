@@ -1,9 +1,5 @@
 <template>
-    <div 
-        class="block"
-        :class="{dragging: isDragging}"
-        ref="draggableBlock"
-        :style="{'top': x, 'left': y}" 
+    <div class="block" :class="{ dragging: isDragging }" ref="draggableBlock" :style="{'top': x, 'left': y}"
         @mousedown="dragMouseDown">
         <div class="block-item type">Text Message</div>
         <div class="block-item text">Hi</div>
@@ -18,7 +14,7 @@
 export default {
     data() {
         return {
-            isDragging: false ,
+            isDragging: false,
             x: null,
             y: null,
             positions: {
@@ -31,7 +27,8 @@ export default {
     },
     props: {
         startX: Number,
-        startY: Number
+        startY: Number,
+        scale: Number
     },
     methods: {
         dragMouseDown: function (event) {
@@ -45,19 +42,20 @@ export default {
         },
         elementDrag: function (event) {
             event.preventDefault()
-            this.positions.movementX = this.positions.clientX - event.clientX
-            this.positions.movementY = this.positions.clientY - event.clientY
+            this.positions.movementX = (this.positions.clientX - event.clientX)*(1/this.scale)
+            this.positions.movementY = (this.positions.clientY - event.clientY)*(1/this.scale)
             this.positions.clientX = event.clientX
             this.positions.clientY = event.clientY
             // set the element's new position:
             this.x = (this.$refs.draggableBlock.offsetTop - this.positions.movementY) + 'px'
             this.y = (this.$refs.draggableBlock.offsetLeft - this.positions.movementX) + 'px'
+            this.isDragging = true
         },
         closeDragElement() {
             document.onmouseup = null
             document.onmousemove = null
             this.isDragging = false
-        }
+        },
     },
     mounted() {
         this.x = this.startX + 'px';
@@ -76,12 +74,12 @@ export default {
     border: 2px solid grey;
     cursor: grab;
     overflow: hidden;
-    &.dragging{
+    &.dragging {
         cursor: grabbing;
         border: 2px solid rgb(87, 87, 238);
-        z-index: 100;
         overflow: hidden;
     }
+
     .block-item {
         display: flex;
         justify-content: center;
