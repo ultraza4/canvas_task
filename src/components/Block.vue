@@ -74,6 +74,7 @@ export default {
     border: 2px solid grey;
     cursor: grab;
     overflow: hidden;
+    background-color: white;
     &.dragging {
         cursor: grabbing;
         border: 2px solid rgb(87, 87, 238);
