@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import ShortUniqueId from "short-unique-id";
 
 const uuid = new ShortUniqueId();
@@ -38,7 +38,9 @@ export default {
             CAHNGE_POSITION: 'drag/CAHNGE_POSITION',
             ADD_CURRENT_LINE: 'drag/ADD_CURRENT_LINE',
             ADD_CURRENT_LINE_END: 'drag/ADD_CURRENT_LINE_END',
-            ADD_LINE: 'drag/ADD_LINE'
+            ADD_LINE: 'drag/ADD_LINE',
+            ADD_CIRCLE_START: 'drag/ADD_CIRCLE_START',
+            ADD_CIRCLE_CONNECT: 'drag/ADD_CIRCLE_CONNECT'
         }),
         dragMouseDown: function (event) {
             event.preventDefault()
@@ -74,29 +76,28 @@ export default {
                     top: e.clientY,
                     left: e.clientX
                 }
-            };
-            this.ADD_CURRENT_LINE(line)
-            this.ADD_CURRENT_LINE_END({top: e.clientY, left: e.clientX})
-            document.onmousemove = this.currentLineEnd
-        },
-        currentLineEnd(e) {
-            this.ADD_CURRENT_LINE_END({
-                top: e.clientY - 5,
-                left: e.clientX - 5
-            })
+            }
+            document.onmousemove = (event) => {
+                const fullLine = {
+                    ...line,
+                    to: {
+                        top: event.clientY,
+                        left: event.clientX
+                    }
+                }
+                this.ADD_CURRENT_LINE(fullLine)
+            }
+            this.ADD_CIRCLE_START({blockId: this.id, lineId: line.id})
         },
         dotConnect() {
-            this.ADD_LINE()
-            this.ADD_CURRENT_LINE({
-                id:  uuid.randomUUID(8),
-                from: {
-                    top: 0,
-                    left: 0
-                }
-            })
-            this.ADD_CURRENT_LINE_END({top: 0, left: 0})
+            this.ADD_CIRCLE_CONNECT({blockId: this.id, lineId: currentLine.id})
+            this.ADD_LINE(this.id)
+            document.onmousemove = null
         }
-    }
+    },
+    ...mapState({
+      currentLine: state => state.drag.currentLine,
+    })
 }
 </script>
 
@@ -110,7 +111,7 @@ export default {
     border: 2px solid grey;
     cursor: grab;
     border-radius: 15px;
-
+    z-index: 2000;
     background-color: white;
 
     &.dragging {

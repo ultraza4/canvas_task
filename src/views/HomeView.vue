@@ -12,7 +12,8 @@
       :newLeft="block.position.left" 
       :newTop="block.position.top"
       :scale="scaleNum"/>
-      <svg 
+      <svg
+        v-if="this.currentLine" 
         :width='currentLine.from.left > currentLine.to.left ?
         currentLine.from.left : currentLine.to.left ' 
         :height='currentLine.from.top > currentLine.to.top ?
@@ -134,7 +135,8 @@ export default {
   z-index: 1000;
   transform-origin: center;
 
-  .line{
+  .svgLine{
+    position: absolute;
     z-index: 100;
   }
 }

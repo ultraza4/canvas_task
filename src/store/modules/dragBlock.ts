@@ -6,11 +6,11 @@ type BlockType = {
     }
     circleStart: {
         isActive: boolean,
-        lineId: Number
+        lineIds: Array<Number>
     }
     circleConnect: {
         isActive: boolean,
-        lineId: Number
+        lineIds: Array<Number>
     }
 }
 
@@ -43,11 +43,11 @@ export const dragBlock: any = {
             },
             circleStart: {
                 isActive: false,
-                lineId: 12
+                lineIds: []
             },
             circleConnect: {
                 isActive: false,
-                lineId:24
+                lineIds:[]
             }
         },
         {
@@ -58,23 +58,38 @@ export const dragBlock: any = {
             },
             circleStart: {
                 isActive: false,
-                lineId: 2
+                lineIds: []
             },
             circleConnect: {
                 isActive: false,
-                lineId: 4
+                lineIds: []
+            }
+        },
+        {
+            id: 3,
+            position: {
+                top: 500,
+                left: 600,
+            },
+            circleStart: {
+                isActive: false,
+                lineIds: []
+            },
+            circleConnect: {
+                isActive: false,
+                lineIds: []
             }
         }],
         lines: [],
         currentLine: {
             id: 1,
             from: {
-                top: 12,
-                left: 12
+                top: 0,
+                left: 0
             },
             to: {
-                top: 12,
-                left: 12
+                top: 0,
+                left: 0
             }
         } 
     }),
@@ -89,27 +104,31 @@ export const dragBlock: any = {
             })
         },
         ADD_CURRENT_LINE(state: any, payload: any) {
-            state.currentLine = {
-                ...state.currentLine,
-                id: payload.id,
-                from: {
-                    top: payload.from.top,
-                    left: payload.from.left
-                }
-            }
-            console.log(state.currentLine.from.top, state.currentLine.from.left)
-        },
-        ADD_CURRENT_LINE_END(state: any, payload: any) {
-            state.currentLine ={
-                ...state.currentLine,
-                to: {
-                    top: payload.top,
-                    left: payload.left
-                }
-            }
+            state.currentLine = payload
         },
         ADD_LINE(state: any) {
             state.lines.push(state.currentLine)
+            state.currentLine = null 
+        },
+        ADD_CIRCLE_START(state: any, payload: {blockId: Number, lineId: Number}){
+            state.blocks = state.blocks.map((block: BlockType) => {
+                if(block.id === payload.blockId){
+                    block.circleStart.isActive = true;
+                    block.circleStart.lineIds.push(payload.lineId)
+                }
+                return block;
+            })
+            console.log(state.blocks,state.currentLine.id)
+        },
+        ADD_CIRCLE_CONNECT(state: any, payload: {blockId: Number, lineId: Number}){
+            state.blocks = state.blocks.map((block: BlockType) => {
+                if(block.id === payload.blockId){
+                    block.circleConnect.isActive = true;
+                    block.circleConnect.lineIds.push(payload.lineId)
+                }
+                return block;
+            })
+            console.log(state.blocks)
         },
     },
     namespaced: true
