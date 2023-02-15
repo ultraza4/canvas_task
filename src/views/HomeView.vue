@@ -11,7 +11,8 @@
       :id="block.id" 
       :newLeft="block.position.left" 
       :newTop="block.position.top"
-      :scale="scaleNum"/>
+      :scale="scaleNum"
+      :currentLineId="currentLine.id"/>
       <svg
         v-if="this.currentLine" 
         :width='currentLine.from.left > currentLine.to.left ?
@@ -68,7 +69,8 @@ export default {
     },
     dragMouseDown: function (event) {
       event.preventDefault()
-      if (event.target.className === "canvas" || event.target.id === "app" || event.target.className === "svgLine") {
+      console.log(event.target.className)
+      if (event.target.className === "canvas" || event.target.id === "app" || event.target.className.baseVal === "svgLine") {
         this.positions.clientX = event.clientX
         this.positions.clientY = event.clientY
         document.onmousemove = this.elementDrag
@@ -137,7 +139,7 @@ export default {
 
   .svgLine{
     position: absolute;
-    z-index: 100;
+    z-index: 1001;
   }
 }
 </style>

@@ -15,7 +15,7 @@ type BlockType = {
 }
 
 type lineType = {
-    id: Number,
+    id: String,
     from: {
         top: Number,
         left: Number
@@ -82,7 +82,7 @@ export const dragBlock: any = {
         }],
         lines: [],
         currentLine: {
-            id: 1,
+            id: '1',
             from: {
                 top: 0,
                 left: 0
@@ -106,9 +106,23 @@ export const dragBlock: any = {
         ADD_CURRENT_LINE(state: any, payload: any) {
             state.currentLine = payload
         },
-        ADD_LINE(state: any) {
-            state.lines.push(state.currentLine)
-            state.currentLine = null 
+        ADD_LINE(state: any, payload: any) {
+            state.lines.push({
+                ...state.currentLine,
+                to: payload
+            })
+            console.log(payload)
+            state.currentLine = {
+                id: '',
+                from: {
+                    top:0,
+                    left:0
+                },
+                to: {
+                    top:0,
+                    left:0
+                }
+            }
         },
         ADD_CIRCLE_START(state: any, payload: {blockId: Number, lineId: Number}){
             state.blocks = state.blocks.map((block: BlockType) => {
@@ -118,7 +132,6 @@ export const dragBlock: any = {
                 }
                 return block;
             })
-            console.log(state.blocks,state.currentLine.id)
         },
         ADD_CIRCLE_CONNECT(state: any, payload: {blockId: Number, lineId: Number}){
             state.blocks = state.blocks.map((block: BlockType) => {
@@ -128,7 +141,6 @@ export const dragBlock: any = {
                 }
                 return block;
             })
-            console.log(state.blocks)
         },
     },
     namespaced: true

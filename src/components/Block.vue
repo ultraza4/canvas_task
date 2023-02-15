@@ -24,14 +24,16 @@ export default {
                 clientY: undefined,
                 movementX: 0,
                 movementY: 0
-            }
+            },
+            currentLine: null
         }
     },
     props: {
         newLeft: Number,
         newTop: Number,
         scale: Number,
-        id: Number
+        id: Number,
+        currentLineId: String
     },
     methods: {
         ...mapMutations({
@@ -70,34 +72,36 @@ export default {
             this.isDragging = false
         },
         dotStart(e) {
+            let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
+            let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
             const line = {
                 id: uuid.randomUUID(8),
                 from: {
-                    top: e.clientY,
-                    left: e.clientX
+                    top: lineTop,
+                    left: lineLeft
                 }
             }
             document.onmousemove = (event) => {
                 const fullLine = {
                     ...line,
                     to: {
-                        top: event.clientY,
-                        left: event.clientX
+                        top: event.pageY-5,
+                        left: event.pageX-5
                     }
                 }
                 this.ADD_CURRENT_LINE(fullLine)
             }
             this.ADD_CIRCLE_START({blockId: this.id, lineId: line.id})
         },
-        dotConnect() {
-            this.ADD_CIRCLE_CONNECT({blockId: this.id, lineId: currentLine.id})
-            this.ADD_LINE(this.id)
+        dotConnect(e) {
+            let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
+            let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
+            
+            this.ADD_LINE({top: lineTop, left: lineLeft})
+            this.ADD_CIRCLE_CONNECT({blockId: this.id, lineId: this.currentLineId})
             document.onmousemove = null
         }
     },
-    ...mapState({
-      currentLine: state => state.drag.currentLine,
-    })
 }
 </script>
 
@@ -137,7 +141,7 @@ export default {
         border-radius: 50%;
         position: absolute;
         bottom: 20px;
-        right: -10px;
+        right: -12px;
         overflow: hidden;
         cursor: pointer;
     }
