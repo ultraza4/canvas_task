@@ -5,12 +5,15 @@
         <div class="block-item text">Hi</div>
         <div class="block-item step">next step</div>
         <div class="circle-start" @click="dotStart"></div>
-        <div class="circle-connect"></div>
+        <div class="circle-connect" @click="dotConnect"></div>
     </div>
 </template>
 
 <script>
 import { mapMutations } from "vuex";
+import ShortUniqueId from "short-unique-id";
+
+const uuid = new ShortUniqueId();
 
 export default {
     data() {
@@ -32,7 +35,10 @@ export default {
     },
     methods: {
         ...mapMutations({
-            changePos: 'drag/changePosition'
+            CAHNGE_POSITION: 'drag/CAHNGE_POSITION',
+            ADD_CURRENT_LINE: 'drag/ADD_CURRENT_LINE',
+            ADD_CURRENT_LINE_END: 'drag/ADD_CURRENT_LINE_END',
+            ADD_LINE: 'drag/ADD_LINE'
         }),
         dragMouseDown: function (event) {
             event.preventDefault()
@@ -49,7 +55,7 @@ export default {
             this.positions.movementY = (this.positions.clientY - event.clientY) * (1 / this.scale)
             this.positions.clientX = event.clientX
             this.positions.clientY = event.clientY
-            this.changePos({
+            this.CAHNGE_POSITION({
                 id: this.id,
                 newTop: this.$refs.draggableBlock.offsetTop - this.positions.movementY,
                 newLeft: this.$refs.draggableBlock.offsetLeft - this.positions.movementX
@@ -62,14 +68,33 @@ export default {
             this.isDragging = false
         },
         dotStart(e) {
-            // const line = {
-            //     id: uuid.randomUUID(8),
-            //     from: e.target.absolutePosition(),
-            // };
-            document.onmousemove = this.foo
+            const line = {
+                id: uuid.randomUUID(8),
+                from: {
+                    top: e.clientY,
+                    left: e.clientX
+                }
+            };
+            this.ADD_CURRENT_LINE(line)
+            this.ADD_CURRENT_LINE_END({top: e.clientY, left: e.clientX})
+            document.onmousemove = this.currentLineEnd
         },
-        foo(e) {
-            console.log(e)
+        currentLineEnd(e) {
+            this.ADD_CURRENT_LINE_END({
+                top: e.clientY - 5,
+                left: e.clientX - 5
+            })
+        },
+        dotConnect() {
+            this.ADD_LINE()
+            this.ADD_CURRENT_LINE({
+                id:  uuid.randomUUID(8),
+                from: {
+                    top: 0,
+                    left: 0
+                }
+            })
+            this.ADD_CURRENT_LINE_END({top: 0, left: 0})
         }
     }
 }

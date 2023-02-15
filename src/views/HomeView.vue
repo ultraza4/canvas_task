@@ -4,7 +4,7 @@
     <button class="btn" @click="downScale">-</button>
   </div>
   <div class="canvas" :style="{ transform: 'scale(' + this.scaleNum + ')', top: this.x, left: this.y }"
-    ref="draggableCanvas">
+    ref="draggableCanvas" @mousedown="dragMouseDown">
     <Block 
       v-for="block in blocks" 
       :key="block.id"
@@ -12,6 +12,28 @@
       :newLeft="block.position.left" 
       :newTop="block.position.top"
       :scale="scaleNum"/>
+      <svg 
+        :width='currentLine.from.left > currentLine.to.left ?
+        currentLine.from.left : currentLine.to.left ' 
+        :height='currentLine.from.top > currentLine.to.top ?
+        currentLine.from.top : currentLine.to.top ' 
+        class="svgLine">
+        <line class="svgLine"
+          :x1='currentLine.from.left' :y1='currentLine.from.top'
+          :x2='currentLine.to.left' :y2='currentLine.to.top' stroke="black"/>
+      </svg>
+      <svg 
+        v-for="line in lines"
+        :key="line.id"
+        :width='line.from.left > line.to.left ?
+        line.from.left : line.to.left ' 
+        :height='line.from.top > line.to.top ?
+        line.from.top : line.to.top ' 
+        class="svgLine">
+        <line class="svgLine"
+          :x1='line.from.left' :y1='line.from.top'
+          :x2='line.to.left' :y2='line.to.top' stroke="black"/>
+      </svg>
   </div>
 </template>
 
@@ -45,7 +67,7 @@ export default {
     },
     dragMouseDown: function (event) {
       event.preventDefault()
-      if (event.target.className === "canvas" || event.target.id === "app") {
+      if (event.target.className === "canvas" || event.target.id === "app" || event.target.className === "svgLine") {
         this.positions.clientX = event.clientX
         this.positions.clientY = event.clientY
         document.onmousemove = this.elementDrag
@@ -69,7 +91,9 @@ export default {
   },
   computed: {
     ...mapState({
-      blocks: state => state.drag.blocks
+      blocks: state => state.drag.blocks,
+      currentLine: state => state.drag.currentLine,
+      lines: state => state.drag.lines,
     })
   },
   mounted() {
@@ -109,5 +133,9 @@ export default {
   position: absolute;
   z-index: 1000;
   transform-origin: center;
+
+  .line{
+    z-index: 100;
+  }
 }
 </style>

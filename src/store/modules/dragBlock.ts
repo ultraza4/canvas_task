@@ -1,11 +1,16 @@
 type BlockType = {
     id: number,
     position: {
-        top: number,
-        left: number
+        top: Number,
+        left: Number
     }
     circleStart: {
         isActive: boolean,
+        lineId: Number
+    }
+    circleConnect: {
+        isActive: boolean,
+        lineId: Number
     }
 }
 
@@ -23,7 +28,8 @@ type lineType = {
 
 type dragBlockStateType = {
     blocks: Array<BlockType>
-    lines: []
+    lines: [],
+    currentLine: lineType
 }
 
 
@@ -36,7 +42,12 @@ export const dragBlock: any = {
                 left: 50,
             },
             circleStart: {
-                isActive: false
+                isActive: false,
+                lineId: 12
+            },
+            circleConnect: {
+                isActive: false,
+                lineId:24
             }
         },
         {
@@ -46,16 +57,29 @@ export const dragBlock: any = {
                 left: 300,
             },
             circleStart: {
-                isActive: false
+                isActive: false,
+                lineId: 2
+            },
+            circleConnect: {
+                isActive: false,
+                lineId: 4
             }
         }],
-        lines: []
+        lines: [],
+        currentLine: {
+            id: 1,
+            from: {
+                top: 12,
+                left: 12
+            },
+            to: {
+                top: 12,
+                left: 12
+            }
+        } 
     }),
     mutations: {
-        ADD_LINE(state: any, payload: any) {
-            state.LINES.push(payload)
-        },
-        changePosition(state: any, payload: any) {
+        CAHNGE_POSITION(state: any, payload: any) {
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.id){
                     block.position.top = payload.newTop;
@@ -63,7 +87,30 @@ export const dragBlock: any = {
                 }
                 return block;
             })
-        }
+        },
+        ADD_CURRENT_LINE(state: any, payload: any) {
+            state.currentLine = {
+                ...state.currentLine,
+                id: payload.id,
+                from: {
+                    top: payload.from.top,
+                    left: payload.from.left
+                }
+            }
+            console.log(state.currentLine.from.top, state.currentLine.from.left)
+        },
+        ADD_CURRENT_LINE_END(state: any, payload: any) {
+            state.currentLine ={
+                ...state.currentLine,
+                to: {
+                    top: payload.top,
+                    left: payload.left
+                }
+            }
+        },
+        ADD_LINE(state: any) {
+            state.lines.push(state.currentLine)
+        },
     },
     namespaced: true
 }
