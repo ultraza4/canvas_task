@@ -82,7 +82,7 @@ export const dragBlock: any = {
         }],
         lines: [],
         currentLine: {
-            id: '1',
+            id: '',
             from: {
                 top: 0,
                 left: 0
@@ -111,7 +111,6 @@ export const dragBlock: any = {
                 ...state.currentLine,
                 to: payload
             })
-            console.log(payload)
             state.currentLine = {
                 id: '',
                 from: {

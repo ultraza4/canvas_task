@@ -3,44 +3,25 @@
     <button class="btn" @click="upScale">+</button>
     <button class="btn" @click="downScale">-</button>
   </div>
-  <div class="canvas" :style="{ transform: 'scale(' + this.scaleNum + ')', top: this.x, left: this.y }"
+  <div class="canvas" :style="{transform: 'scale(' + this.scaleNum + ')', top: this.x + 'px', left: this.y +'px' }"
     ref="draggableCanvas" @mousedown="dragMouseDown">
-    <Block 
+      <Block 
       v-for="block in blocks" 
       :key="block.id"
       :id="block.id" 
       :newLeft="block.position.left" 
       :newTop="block.position.top"
       :scale="scaleNum"
-      :currentLineId="currentLine.id"/>
-      <svg
-        v-if="this.currentLine" 
-        :width='currentLine.from.left > currentLine.to.left ?
-        currentLine.from.left : currentLine.to.left ' 
-        :height='currentLine.from.top > currentLine.to.top ?
-        currentLine.from.top : currentLine.to.top ' 
-        class="svgLine">
-        <line class="svgLine"
-          :x1='currentLine.from.left' :y1='currentLine.from.top'
-          :x2='currentLine.to.left' :y2='currentLine.to.top' stroke="black"/>
-      </svg>
-      <svg 
-        v-for="line in lines"
-        :key="line.id"
-        :width='line.from.left > line.to.left ?
-        line.from.left : line.to.left ' 
-        :height='line.from.top > line.to.top ?
-        line.from.top : line.to.top ' 
-        class="svgLine">
-        <line class="svgLine"
-          :x1='line.from.left' :y1='line.from.top'
-          :x2='line.to.left' :y2='line.to.top' stroke="black"/>
-      </svg>
+      :currentLineId="currentLine.id"
+      :canvasOffsetLeft="canvasOffsetLeft"
+      :canvasOffsetTop="canvasOffsetTop"/>
+    <Lines/>
   </div>
 </template>
 
 <script >
 import Block from '@/components/Block.vue';
+import Lines from '@/components/Lines.vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -49,6 +30,8 @@ export default {
       scaleNum: 1,
       x: 0,
       y: 0,
+      canvasOffsetLeft: 0,
+      canvasOffsetTop: 0,
       positions: {
         clientX: undefined,
         clientY: undefined,
@@ -59,6 +42,7 @@ export default {
   },
   components: {
     Block,
+    Lines
   },
   methods: {
     upScale() {
@@ -69,8 +53,8 @@ export default {
     },
     dragMouseDown: function (event) {
       event.preventDefault()
-      console.log(event.target.className)
-      if (event.target.className === "canvas" || event.target.id === "app" || event.target.className.baseVal === "svgLine") {
+      if (event.target.className === "canvas" || 
+        event.target.id === "app" || event.target.className.baseVal === "svgLine") {
         this.positions.clientX = event.clientX
         this.positions.clientY = event.clientY
         document.onmousemove = this.elementDrag
@@ -78,14 +62,17 @@ export default {
       }
     },
     elementDrag: function (event) {
-      event.preventDefault()
+      event.preventDefault()      
       this.positions.movementX = this.positions.clientX - event.clientX
       this.positions.movementY = this.positions.clientY - event.clientY
       this.positions.clientX = event.clientX
       this.positions.clientY = event.clientY
       // set the element's new position:
-      this.x = (this.$refs.draggableCanvas.offsetTop - this.positions.movementY) + 'px'
-      this.y = (this.$refs.draggableCanvas.offsetLeft - this.positions.movementX) + 'px'
+      this.x = (this.$refs.draggableCanvas.offsetTop - this.positions.movementY)
+      this.y = (this.$refs.draggableCanvas.offsetLeft - this.positions.movementX)
+
+      this.canvasOffsetTop = this.$refs.draggableCanvas.offsetTop,
+      this.canvasOffsetLeft = this.$refs.draggableCanvas.offsetLeft
     },
     closeDragElement() {
       document.onmouseup = null
@@ -97,12 +84,10 @@ export default {
       blocks: state => state.drag.blocks,
       currentLine: state => state.drag.currentLine,
       lines: state => state.drag.lines,
-    })
+    }),
   },
   mounted() {
     document.addEventListener("mousedown", this.dragMouseDown)
-    this.canvasWidth = document.documentElement.scrollWidth + 'px'
-    this.canvasHeight = document.documentElement.scrollHeight + 'px'
   }
 }
 </script>
@@ -135,11 +120,11 @@ export default {
   height: 100%;
   position: absolute;
   z-index: 1000;
-  transform-origin: center;
+  transform-origin: 0 0;
 
-  .svgLine{
-    position: absolute;
-    z-index: 1001;
+  .inner-canvas{
+    transform-origin: center;
+    position: relative;
   }
 }
 </style>

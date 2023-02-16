@@ -25,6 +25,12 @@ export default {
                 movementX: 0,
                 movementY: 0
             },
+            linePositions: {
+                clientX: undefined,
+                clientY: undefined,
+                movementX: 0,
+                movementY: 0
+            },
             currentLine: null
         }
     },
@@ -33,7 +39,9 @@ export default {
         newTop: Number,
         scale: Number,
         id: Number,
-        currentLineId: String
+        currentLineId: String,
+        canvasOffsetTop: Number,
+        canvasOffsetLeft: Number
     },
     methods: {
         ...mapMutations({
@@ -74,6 +82,7 @@ export default {
         dotStart(e) {
             let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
             let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
+            
             const line = {
                 id: uuid.randomUUID(8),
                 from: {
@@ -82,24 +91,31 @@ export default {
                 }
             }
             document.onmousemove = (event) => {
+                this.linePositions.movementX = (this.linePositions.clientX - event.clientX) * (1 / this.scale)
+                this.linePositions.movementY = (this.linePositions.clientY - event.clientY) * (1 / this.scale)
+                this.linePositions.clientX = event.clientX
+                this.linePositions.clientY = event.clientY
+                
                 const fullLine = {
                     ...line,
                     to: {
-                        top: event.pageY-5,
-                        left: event.pageX-5
+                        top: (event.pageY- this.canvasOffsetTop)* (1 / this.scale) ,
+                        left: (event.pageX- this.canvasOffsetLeft)* (1 / this.scale) 
                     }
                 }
                 this.ADD_CURRENT_LINE(fullLine)
             }
-            this.ADD_CIRCLE_START({blockId: this.id, lineId: line.id})
+            this.ADD_CIRCLE_START({ blockId: this.id, lineId: line.id })
         },
         dotConnect(e) {
-            let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
-            let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
-            
-            this.ADD_LINE({top: lineTop, left: lineLeft})
-            this.ADD_CIRCLE_CONNECT({blockId: this.id, lineId: this.currentLineId})
-            document.onmousemove = null
+            if(this.currentLineId.length){
+                let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
+                let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
+
+                this.ADD_LINE({ top: lineTop, left: lineLeft })
+                this.ADD_CIRCLE_CONNECT({ blockId: this.id, lineId: this.currentLineId })
+                document.onmousemove = null
+            }
         }
     },
 }
