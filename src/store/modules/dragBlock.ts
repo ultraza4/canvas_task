@@ -32,7 +32,6 @@ type dragBlockStateType = {
     currentLine: lineType
 }
 
-
 export const dragBlock: any = {
     state: (): dragBlockStateType  => ({
         blocks: [{
@@ -103,10 +102,10 @@ export const dragBlock: any = {
                 return block;
             })
         },
-        ADD_CURRENT_LINE(state: any, payload: any) {
+        ADD_CURRENT_LINE(state: any, payload: lineType) {
             state.currentLine = payload
         },
-        ADD_LINE(state: any, payload: any) {
+        ADD_LINE(state: any, payload: lineType) {
             state.lines.push({
                 ...state.currentLine,
                 to: payload

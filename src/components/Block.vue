@@ -57,7 +57,6 @@ export default {
         //методы обработки перемещения блока по канвасу
         dragMouseDown: function (event) {
             event.preventDefault()
-            // get the mouse cursor position at startup:
             this.positions.clientX = event.clientX
             this.positions.clientY = event.clientY
             document.onmousemove = this.elementDrag
@@ -76,6 +75,7 @@ export default {
                 newLeft: this.$refs.draggableBlock.offsetLeft - this.positions.movementX
             }),
             this.isDragging = true
+            //если есть линий связанные с блоком меняем их позиций отсносительно движения
             const block = this.getBlock(this.id)
             if(block.circleStart.lineIds.length){
                 block.circleStart.lineIds.map((id) => {
@@ -102,7 +102,7 @@ export default {
             this.isDragging = false
         },
 
-        //методы для обработки начальной и конечной точки линий
+        //методы для обработки начальной точки линий
         dotStart(e) {
             let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
             let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
@@ -131,6 +131,7 @@ export default {
             }
             this.ADD_CIRCLE_START({ blockId: this.id, lineId: line.id })
         },
+        //методы для обработки конечной точки линий и добавление его в массив линий
         dotConnect(e) {
             if (this.currentLineId.length) {
                 let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
@@ -166,6 +167,7 @@ export default {
     &.dragging {
         cursor: grabbing;
         border: 2px solid rgb(87, 87, 238);
+        box-shadow: 0 0 10px rgb(87, 87, 238)
     }
 
     .block-item {
@@ -189,6 +191,12 @@ export default {
         right: -12px;
         overflow: hidden;
         cursor: pointer;
+        transition: all 0.2s ease;
+        opacity: 0.7;
+        &:hover{
+            transform: scale(1.2);
+            opacity: 1
+        }
     }
 
     .circle-connect {
@@ -202,6 +210,13 @@ export default {
         left: -15px;
         overflow: hidden;
         cursor: pointer;
+        transition: all 0.2s ease;
+        opacity: 0.7;
+        
+        &:hover{
+            transform: scale(1.2);
+            opacity: 1;
+        }
     }
 }
 </style>
