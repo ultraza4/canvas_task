@@ -1,8 +1,8 @@
 type BlockType = {
     id: number,
     position: {
-        top: Number,
-        left: Number
+        top: number,
+        left: number
     }
     circleStart: {
         isActive: boolean,
@@ -15,14 +15,14 @@ type BlockType = {
 }
 
 type lineType = {
-    id: String,
+    id: string,
     from: {
-        top: Number,
-        left: Number
+        top: number,
+        left: number
     },
     to: {
-        top: Number,
-        left: Number
+        top: number,
+        left: number
     }
 }
 
@@ -123,7 +123,7 @@ export const dragBlock: any = {
                 }
             }
         },
-        ADD_CIRCLE_START(state: any, payload: {blockId: Number, lineId: Number}){
+        ADD_CIRCLE_START(state: any, payload: {blockId: number, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
                     block.circleStart.isActive = true;
@@ -132,7 +132,7 @@ export const dragBlock: any = {
                 return block;
             })
         },
-        ADD_CIRCLE_CONNECT(state: any, payload: {blockId: Number, lineId: Number}){
+        ADD_CIRCLE_CONNECT(state: any, payload: {blockId: number, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
                     block.circleConnect.isActive = true;
@@ -141,6 +141,33 @@ export const dragBlock: any = {
                 return block;
             })
         },
+        CHANGE_LINE_FROM_POS(state: any, payload: {lineId: string, newTop: number, newLeft: number}){
+            state.lines = state.lines.map((line: lineType) =>{
+                if(line.id === payload.lineId){
+                    line.from = {
+                        top: line.from.top - payload.newTop,
+                        left: line.from.left - payload.newLeft
+                    }
+                }
+                return line;
+            })
+        },
+        CHANGE_LINE_TO_POS(state: any, payload: {lineId: string, newTop: number, newLeft: number}){
+            state.lines = state.lines.map((line: lineType) =>{
+                if(line.id === payload.lineId){
+                    line.to = {
+                        top: line.to.top - payload.newTop,
+                        left: line.to.left - payload.newLeft
+                    }
+                }
+                return line;
+            })
+        }
+    },
+    getters: {
+        getBlock: (state: any) => (id: Number) => {
+            return state.blocks.find((block: BlockType) => block.id === id)
+        }
     },
     namespaced: true
 }

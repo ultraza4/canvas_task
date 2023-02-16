@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 import ShortUniqueId from "short-unique-id";
 
 const uuid = new ShortUniqueId();
@@ -50,8 +50,11 @@ export default {
             ADD_CURRENT_LINE_END: 'drag/ADD_CURRENT_LINE_END',
             ADD_LINE: 'drag/ADD_LINE',
             ADD_CIRCLE_START: 'drag/ADD_CIRCLE_START',
-            ADD_CIRCLE_CONNECT: 'drag/ADD_CIRCLE_CONNECT'
+            ADD_CIRCLE_CONNECT: 'drag/ADD_CIRCLE_CONNECT',
+            CHANGE_LINE_FROM_POS: 'drag/CHANGE_LINE_FROM_POS',
+            CHANGE_LINE_TO_POS: 'drag/CHANGE_LINE_TO_POS'
         }),
+        //методы обработки перемещения блока по канвасу
         dragMouseDown: function (event) {
             event.preventDefault()
             // get the mouse cursor position at startup:
@@ -72,17 +75,38 @@ export default {
                 newTop: this.$refs.draggableBlock.offsetTop - this.positions.movementY,
                 newLeft: this.$refs.draggableBlock.offsetLeft - this.positions.movementX
             }),
-                this.isDragging = true
+            this.isDragging = true
+            const block = this.getBlock(this.id)
+            if(block.circleStart.lineIds.length){
+                block.circleStart.lineIds.map((id) => {
+                    this.CHANGE_LINE_FROM_POS({
+                        lineId: id, 
+                        newTop: this.positions.movementY, 
+                        newLeft: this.positions.movementX
+                    })
+                })
+            }
+            if(block.circleConnect.lineIds.length){
+                block.circleConnect.lineIds.map((id) => {
+                    this.CHANGE_LINE_TO_POS({
+                        lineId: id, 
+                        newTop: this.positions.movementY, 
+                        newLeft: this.positions.movementX
+                    })
+                })
+            }
         },
         closeDragElement() {
             document.onmouseup = null
             document.onmousemove = null
             this.isDragging = false
         },
+
+        //методы для обработки начальной и конечной точки линий
         dotStart(e) {
             let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
             let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
-            
+
             const line = {
                 id: uuid.randomUUID(8),
                 from: {
@@ -95,12 +119,12 @@ export default {
                 this.linePositions.movementY = (this.linePositions.clientY - event.clientY) * (1 / this.scale)
                 this.linePositions.clientX = event.clientX
                 this.linePositions.clientY = event.clientY
-                
+
                 const fullLine = {
                     ...line,
                     to: {
-                        top: (event.pageY- this.canvasOffsetTop)* (1 / this.scale) ,
-                        left: (event.pageX- this.canvasOffsetLeft)* (1 / this.scale) 
+                        top: (event.pageY - this.canvasOffsetTop) * (1 / this.scale),
+                        left: (event.pageX - this.canvasOffsetLeft) * (1 / this.scale)
                     }
                 }
                 this.ADD_CURRENT_LINE(fullLine)
@@ -108,7 +132,7 @@ export default {
             this.ADD_CIRCLE_START({ blockId: this.id, lineId: line.id })
         },
         dotConnect(e) {
-            if(this.currentLineId.length){
+            if (this.currentLineId.length) {
                 let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
                 let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
 
@@ -118,6 +142,11 @@ export default {
             }
         }
     },
+    computed: {
+        ...mapGetters({
+            getBlock: 'drag/getBlock',
+        }),
+    }
 }
 </script>
 
