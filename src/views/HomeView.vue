@@ -2,27 +2,21 @@
   <div class="zoom-btns">
     <button class="btn" @click="upScale">+</button>
     <button class="btn" @click="downScale">-</button>
+    <button class="btn" @click="undo">U</button>
   </div>
-  <div class="canvas" :style="{transform: 'scale(' + this.scaleNum + ')', top: this.x + 'px', left: this.y +'px' }"
+  <div class="canvas" :style="{ transform: 'scale(' + this.scaleNum + ')', top: this.x + 'px', left: this.y + 'px' }"
     ref="draggableCanvas" @mousedown="dragMouseDown">
-      <Block 
-      v-for="block in blocks" 
-      :key="block.id"
-      :id="block.id" 
-      :newLeft="block.position.left" 
-      :newTop="block.position.top"
-      :scale="scaleNum"
-      :currentLineId="currentLine.id"
-      :canvasOffsetLeft="canvasOffsetLeft"
-      :canvasOffsetTop="canvasOffsetTop"/>
-    <Lines/>
+    <Block v-for="block in blocks" :key="block.id" :id="block.id" :newLeft="block.position.left"
+      :newTop="block.position.top" :scale="scaleNum" :currentLineId="currentLine.id" :canvasOffsetLeft="canvasOffsetLeft"
+      :canvasOffsetTop="canvasOffsetTop" />
+    <Lines />
   </div>
 </template>
 
 <script >
 import Block from '@/components/Block.vue';
 import Lines from '@/components/Lines.vue';
-import { mapState } from 'vuex';
+import { mapState,mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -45,15 +39,23 @@ export default {
     Lines
   },
   methods: {
+    ...mapMutations({
+      UNDO_HISTORY: 'drag/UNDO_HISTORY' 
+    }),
     upScale() {
       this.scaleNum += 0.1
     },
     downScale() {
       this.scaleNum -= 0.1
     },
+    undo() {
+      if(this.history.length){
+        this.UNDO_HISTORY()
+      }
+    },
     dragMouseDown: function (event) {
       event.preventDefault()
-      if (event.target.className === "canvas" || 
+      if (event.target.className === "canvas" ||
         event.target.id === "app" || event.target.className.baseVal === "svgLine") {
         this.positions.clientX = event.clientX
         this.positions.clientY = event.clientY
@@ -62,7 +64,7 @@ export default {
       }
     },
     elementDrag: function (event) {
-      event.preventDefault()      
+      event.preventDefault()
       this.positions.movementX = this.positions.clientX - event.clientX
       this.positions.movementY = this.positions.clientY - event.clientY
       this.positions.clientX = event.clientX
@@ -72,7 +74,7 @@ export default {
       this.y = (this.$refs.draggableCanvas.offsetLeft - this.positions.movementX)
 
       this.canvasOffsetTop = this.$refs.draggableCanvas.offsetTop,
-      this.canvasOffsetLeft = this.$refs.draggableCanvas.offsetLeft
+        this.canvasOffsetLeft = this.$refs.draggableCanvas.offsetLeft
     },
     closeDragElement() {
       document.onmouseup = null
@@ -84,6 +86,7 @@ export default {
       blocks: state => state.drag.blocks,
       currentLine: state => state.drag.currentLine,
       lines: state => state.drag.lines,
+      history: state => state.drag.history
     }),
   },
   mounted() {
@@ -122,7 +125,7 @@ export default {
   z-index: 1000;
   transform-origin: 0 0;
 
-  .inner-canvas{
+  .inner-canvas {
     transform-origin: center;
     position: relative;
   }
