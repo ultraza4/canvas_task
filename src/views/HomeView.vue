@@ -48,6 +48,9 @@ export default {
     downScale() {
       this.scaleNum -= 0.1
     },
+    wheelScale(e){
+      e.deltaY > 0 ? this.downScale() : this.upScale()
+    },
     undo() {
       if(this.history.length){
         this.UNDO_HISTORY()
@@ -91,6 +94,7 @@ export default {
   },
   mounted() {
     document.addEventListener("mousedown", this.dragMouseDown)
+    document.addEventListener("wheel", this.wheelScale)
   }
 }
 </script>
