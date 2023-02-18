@@ -77,7 +77,7 @@ export default {
       this.y = (this.$refs.draggableCanvas.offsetLeft - this.positions.movementX)
 
       this.canvasOffsetTop = this.$refs.draggableCanvas.offsetTop,
-        this.canvasOffsetLeft = this.$refs.draggableCanvas.offsetLeft
+      this.canvasOffsetLeft = this.$refs.draggableCanvas.offsetLeft
     },
     closeDragElement() {
       document.onmouseup = null

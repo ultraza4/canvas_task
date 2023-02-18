@@ -5,11 +5,9 @@ type BlockType = {
         left: number
     }
     circleStart: {
-        isActive: boolean,
         lineIds: Array<Number>
     }
     circleConnect: {
-        isActive: boolean,
         lineIds: Array<Number>
     }
 }
@@ -34,7 +32,7 @@ type dragBlockStateType = {
     movedBlock: BlockType | undefined
 }
 
-export const dragBlock: any = {
+export const dragBlock = {
     state: (): dragBlockStateType  => ({
         blocks: [{
             id: 1,
@@ -43,11 +41,9 @@ export const dragBlock: any = {
                 left: 800,
             },
             circleStart: {
-                isActive: false,
                 lineIds: []
             },
             circleConnect: {
-                isActive: false,
                 lineIds:[]
             }
         },
@@ -58,11 +54,9 @@ export const dragBlock: any = {
                 left: 300,
             },
             circleStart: {
-                isActive: false,
                 lineIds: []
             },
             circleConnect: {
-                isActive: false,
                 lineIds: []
             }
         },
@@ -73,11 +67,9 @@ export const dragBlock: any = {
                 left: 600,
             },
             circleStart: {
-                isActive: false,
                 lineIds: []
             },
             circleConnect: {
-                isActive: false,
                 lineIds: []
             }
         }],
@@ -97,7 +89,7 @@ export const dragBlock: any = {
         history: [] 
     }),
     mutations: {
-        CHANGE_POSITION(state: dragBlockStateType, payload: any) {
+        CHANGE_POSITION(state: dragBlockStateType, payload: {id: number, newTop: number, newLeft: number}) {
             state.movedBlock = state.blocks.find((block: BlockType) => block.id === payload.id)
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.id){
@@ -110,7 +102,7 @@ export const dragBlock: any = {
         ADD_CURRENT_LINE(state: dragBlockStateType, payload: lineType) {
             state.currentLine = payload
         },
-        ADD_LINE(state: any, payload: lineType) {
+        ADD_LINE(state: dragBlockStateType, payload: {top: number, left: number}) {
             state.lines.push({
                 ...state.currentLine,
                 to: payload
@@ -122,7 +114,6 @@ export const dragBlock: any = {
         ADD_CIRCLE_START(state: dragBlockStateType, payload: {blockId: number, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
-                    block.circleStart.isActive = true;
                     block.circleStart.lineIds.push(payload.lineId)
                 }
                 return block;
@@ -132,7 +123,6 @@ export const dragBlock: any = {
         ADD_CIRCLE_CONNECT(state: dragBlockStateType, payload: {blockId: number, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
-                    block.circleConnect.isActive = true;
                     block.circleConnect.lineIds.push(payload.lineId)
                 }
                 return block;
@@ -213,7 +203,6 @@ export const dragBlock: any = {
                 //возвращает значения связанных линий к блоку
                 state.lines = state.lines.map((line: lineType) => {
                     if(line.id in historyBlock.startLinePositions){
-                        console.log(historyBlock.startLinePositions[line.id])
                         const newLine = {...line, from: historyBlock.startLinePositions[line.id]}
                         return newLine
                     }

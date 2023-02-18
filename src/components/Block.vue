@@ -67,18 +67,17 @@ export default {
                     top: event.target.offsetParent.offsetTop
                 }
                 const oldBlock = { ...this.getBlock(this.id), position: this.oldPositions }
-                this.ADD_HISTORY({ 
-                    historyType: 'block', 
+                this.ADD_HISTORY({
+                    historyType: 'block',
                     block: oldBlock,
                 })
+                event.preventDefault()
+                this.positions.clientX = event.clientX
+                this.positions.clientY = event.clientY
+                document.onmousemove = this.elementDrag
+                document.onmouseup = this.closeDragElement
+                this.isDragging = true
             }
-
-            event.preventDefault()
-            this.positions.clientX = event.clientX
-            this.positions.clientY = event.clientY
-            document.onmousemove = this.elementDrag
-            document.onmouseup = this.closeDragElement
-            this.isDragging = true
         },
         elementDrag(event) {
             event.preventDefault()
@@ -121,6 +120,7 @@ export default {
 
         //методы для обработки начальной точки линий
         dotStart(e) {
+            e.preventDefault()
             let lineTop = this.newTop + e.target.offsetTop + e.target.offsetHeight / 2
             let lineLeft = this.newLeft + e.target.offsetLeft + e.target.offsetWidth / 2
 
@@ -145,6 +145,11 @@ export default {
                     }
                 }
                 this.ADD_CURRENT_LINE(fullLine)
+                document.onmousedown = (event) =>{
+                    if(event.target.className !=='circle-connect'){
+                        this.ADD_CURRENT_LINE({id:'', from:{top: 0,left: 0}, to:{top:0,left:0}})
+                    }
+                }
             }
             this.ADD_CIRCLE_START({ blockId: this.id, lineId: line.id })
         },
