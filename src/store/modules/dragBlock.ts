@@ -1,5 +1,5 @@
 type BlockType = {
-    id: number,
+    id: string,
     position: {
         top: number,
         left: number
@@ -35,7 +35,7 @@ type dragBlockStateType = {
 export const dragBlock = {
     state: (): dragBlockStateType  => ({
         blocks: [{
-            id: 1,
+            id: "1",
             position: {
                 top: 10,
                 left: 800,
@@ -48,7 +48,7 @@ export const dragBlock = {
             }
         },
         {
-            id: 2,
+            id: "2",
             position: {
                 top: 300,
                 left: 300,
@@ -61,7 +61,7 @@ export const dragBlock = {
             }
         },
         {
-            id: 3,
+            id: "3",
             position: {
                 top: 500,
                 left: 600,
@@ -89,7 +89,7 @@ export const dragBlock = {
         history: [] 
     }),
     mutations: {
-        CHANGE_POSITION(state: dragBlockStateType, payload: {id: number, newTop: number, newLeft: number}) {
+        CHANGE_POSITION(state: dragBlockStateType, payload: {id: string, newTop: number, newLeft: number}) {
             state.movedBlock = state.blocks.find((block: BlockType) => block.id === payload.id)
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.id){
@@ -110,8 +110,23 @@ export const dragBlock = {
             state.currentLine = {id:'',from: {top:0,left:0},to:{top:0,left:0}
             }
         },
+        ADD_BLOCK(state: dragBlockStateType, payload: {blockId: string}) {
+            state.blocks.push({
+                id: payload.blockId,
+                position: {
+                    top: 30,
+                    left: 30
+                },
+                circleStart: {
+                    lineIds: []
+                },
+                circleConnect: {
+                    lineIds: []
+                }
+            })
+        },
         //добавляет id линий в блок 
-        ADD_CIRCLE_START(state: dragBlockStateType, payload: {blockId: number, lineId: number}){
+        ADD_CIRCLE_START(state: dragBlockStateType, payload: {blockId: string, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
                     block.circleStart.lineIds.push(payload.lineId)
@@ -120,7 +135,7 @@ export const dragBlock = {
             })
         },
         //добавляет id линий в блок 
-        ADD_CIRCLE_CONNECT(state: dragBlockStateType, payload: {blockId: number, lineId: number}){
+        ADD_CIRCLE_CONNECT(state: dragBlockStateType, payload: {blockId: string, lineId: number}){
             state.blocks = state.blocks.map((block: BlockType) => {
                 if(block.id === payload.blockId){
                     block.circleConnect.lineIds.push(payload.lineId)
@@ -181,6 +196,13 @@ export const dragBlock = {
                 }
                 state.history.push(history)
             }
+            if(payload.historyType === 'create-block'){
+                const history = {
+                    historyType: payload.historyType,
+                    blockId: payload.blockId,
+                }
+                state.history.push(history)
+            }
         },
         UNDO_HISTORY(state: dragBlockStateType){
             if(state.history[state.history.length-1].historyType === 'line'){
@@ -216,11 +238,16 @@ export const dragBlock = {
                     return line
                 })
                 state.history.pop()
+            }else if((state.history[state.history.length-1].historyType === 'create-block')){
+                state.blocks = state.blocks.filter((block: BlockType) => {
+                    return block.id !== state.history[state.history.length-1].blockId
+                })
+                state.history.pop()
             }
         }
     },
     getters: {
-        getBlock: (state: dragBlockStateType) => (id: Number) => {
+        getBlock: (state: dragBlockStateType) => (id: string) => {
             return state.blocks.find((block: BlockType) => block.id === id)
         }
     },

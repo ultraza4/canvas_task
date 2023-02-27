@@ -3,6 +3,7 @@
     <button class="btn" @click="upScale">+</button>
     <button class="btn" @click="downScale">-</button>
     <button class="btn" @click="undo">U</button>
+    <button class="btn" @click="addBlock">A</button>
   </div>
   <div class="canvas" :style="{ transform: 'scale(' + this.scaleNum + ')', top: this.x + 'px', left: this.y + 'px' }"
     ref="draggableCanvas" @mousedown="dragMouseDown">
@@ -17,6 +18,8 @@
 import Block from '@/components/Block.vue';
 import Lines from '@/components/Lines.vue';
 import { mapState,mapMutations } from 'vuex';
+import ShortUniqueId from "short-unique-id";
+const uuid = new ShortUniqueId();
 
 export default {
   data() {
@@ -40,7 +43,9 @@ export default {
   },
   methods: {
     ...mapMutations({
-      UNDO_HISTORY: 'drag/UNDO_HISTORY' 
+      UNDO_HISTORY: 'drag/UNDO_HISTORY',
+      ADD_BLOCK: 'drag/ADD_BLOCK',
+      ADD_HISTORY: 'drag/ADD_HISTORY'
     }),
     upScale() {
       this.scaleNum += 0.1
@@ -55,6 +60,14 @@ export default {
       if(this.history.length){
         this.UNDO_HISTORY()
       }
+    },
+    addBlock() {
+      const id = uuid.randomUUID(8)
+      this.ADD_HISTORY({
+                    historyType: 'create-block',
+                    blockId: id,
+                })
+      this.ADD_BLOCK({blockId: id})
     },
     dragMouseDown: function (event) {
       event.preventDefault()
