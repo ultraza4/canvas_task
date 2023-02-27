@@ -42,7 +42,7 @@ export default {
         newLeft: Number,
         newTop: Number,
         scale: Number,
-        id: Number,
+        id: String,
         currentLineId: String,
         canvasOffsetTop: Number,
         canvasOffsetLeft: Number,
